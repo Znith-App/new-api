@@ -22,4 +22,7 @@ model User {
   gender    String
   avatar    String?
   createdAt DateTime @default(now())
+  deletedAt DateTime?
+  isPremium Boolean  @default(false)
+  isAdmin   Boolean  @default(false)
 }
