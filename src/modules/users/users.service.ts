@@ -45,4 +45,32 @@ export class UsersService {
   async findAllActive() {
     return this.prisma.user.findMany({ where: { deletedAt: null } });
   }
+ 
+  async makeUserPremium(id: number) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { isPremium: true },
+    });
+  }
+
+  async revokeUserPremium(id: number) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { isPremium: false },
+    });
+  }
+  
+  async makeUserAdmin(id: number) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { isAdmin: true },
+    });
+  }
+
+  async revokeUserAdmin(id: number) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { isAdmin: false },
+    });
+  }
 }

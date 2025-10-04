@@ -7,7 +7,7 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(private usersService: UsersService) { }
 
   @Get(':id')
   @ApiOperation({ summary: 'Buscar usuário pelo ID' })
@@ -43,5 +43,29 @@ export class UsersController {
   @ApiOperation({ summary: 'Listar todos usuários ativos' })
   findAllActive() {
     return this.usersService.findAllActive();
+  }
+
+  @Patch(':id/make-premium')
+  @ApiOperation({ summary: 'Tornar usuário premium' })
+  makeUserPremium(@Param('id') id: string) {
+    return this.usersService.makeUserPremium(Number(id));
+  }
+
+  @Patch(':id/revoke-premium')
+  @ApiOperation({ summary: 'Revogar status premium do usuário' })
+  revokeUserPremium(@Param('id') id: string) {
+    return this.usersService.revokeUserPremium(Number(id));
+  }
+
+  @Patch(':id/make-admin')
+  @ApiOperation({ summary: 'Tornar usuário admin' })
+  makeUserAdmin(@Param('id') id: string) {
+    return this.usersService.makeUserAdmin(Number(id));
+  }
+
+  @Patch(':id/revoke-admin')
+  @ApiOperation({ summary: 'Revogar status admin do usuário' })
+  revokeUserAdmin(@Param('id') id: string) {
+    return this.usersService.revokeUserAdmin(Number(id));
   }
 }
