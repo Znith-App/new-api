@@ -23,6 +23,20 @@ model User {
   avatar    String?
   createdAt DateTime @default(now())
   deletedAt DateTime?
+  isPsychologist Boolean  @default(false)
   isPremium Boolean  @default(false)
   isAdmin   Boolean  @default(false)
+  is2FAEnabled   Boolean   @default(false)
+  twoFactors TwoFactor[]
+}
+
+model TwoFactor {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int      @default(0)
+  createdAt  DateTime @default(now())
+  used       Boolean  @default(false)
 }

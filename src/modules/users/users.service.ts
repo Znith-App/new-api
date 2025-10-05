@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async findOne(id: number) {
     const user = await this.prisma.user.findUnique({ where: { id } });
@@ -28,6 +28,13 @@ export class UsersService {
     });
   }
 
+  async changeEmail(id: number, newEmail: string) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { email: newEmail },
+    });
+  }
+
   async softDelete(id: number) {
     return this.prisma.user.update({
       where: { id },
@@ -45,7 +52,7 @@ export class UsersService {
   async findAllActive() {
     return this.prisma.user.findMany({ where: { deletedAt: null } });
   }
- 
+
   async makeUserPremium(id: number) {
     return this.prisma.user.update({
       where: { id },
@@ -59,7 +66,7 @@ export class UsersService {
       data: { isPremium: false },
     });
   }
-  
+
   async makeUserAdmin(id: number) {
     return this.prisma.user.update({
       where: { id },
@@ -71,6 +78,34 @@ export class UsersService {
     return this.prisma.user.update({
       where: { id },
       data: { isAdmin: false },
+    });
+  }
+
+  async makeUserPsychologist(id: number) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { isPsychologist: true },
+    });
+  }
+
+  async revokeUserPsychologist(id: number) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { isPsychologist: false },
+    });
+  }
+
+  async enable2FA(id: number) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { is2FAEnabled: true },
+    });
+  }
+
+  async disable2FA(id: number) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { is2FAEnabled: false },
     });
   }
 }
