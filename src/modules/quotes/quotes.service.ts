@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import axios from 'axios';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class QuotesService {
@@ -97,5 +98,11 @@ export class QuotesService {
       where: { id },
       include: { translations: true },
     });
+  }
+
+  @Cron('0 6 * * *', { timeZone: 'America/Sao_Paulo' })
+  async handleDailyQuoteJob() {
+    this.logger.log('⏰ Executando tarefa diária de frases...');
+    await this.saveDailyQuote();
   }
 }
