@@ -6,9 +6,9 @@ import axios from 'axios';
 export class QuotesService {
   private readonly logger = new Logger(QuotesService.name);
   private readonly zenQuotesUrl = 'https://zenquotes.io/api/random';
-  private readonly libreTranslateUrl ='http://localhost:5000';
+  private readonly libreTranslateUrl = 'http://localhost:5000';
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async getRandomQuote(): Promise<{ text: string; author: string }> {
     const response = await axios.get(this.zenQuotesUrl);
@@ -75,5 +75,27 @@ export class QuotesService {
     }
 
     return quote;
+  }
+
+  async getLastQuote(): Promise<any> {
+    const quote = await this.prisma.dailyQuote.findFirst({
+      include: { translations: true },
+      orderBy: { createdAt: 'desc' },
+    });
+    return quote;
+  }
+
+  async getAllQuotes(): Promise<any[]> {
+    return this.prisma.dailyQuote.findMany({
+      include: { translations: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async getQuoteById(id: number): Promise<any> {
+    return this.prisma.dailyQuote.findUnique({
+      where: { id },
+      include: { translations: true },
+    });
   }
 }
