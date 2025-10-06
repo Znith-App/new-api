@@ -10,25 +10,13 @@ export class QuotesController {
   @Get('daily')
   @ApiOperation({ summary: 'Returns a daily quote.' })
   async getDailyQuotes() {
-    const original = await this.quotesService.getRandomQuote();
+    const quote = await this.quotesService.getTodayQuote();
 
-    const pt = await this.quotesService.translate(original.text, 'PT');
+    const response: any = { original: { text: quote.text, author: quote.author } };
+    for (const t of quote.translations) {
+      response[t.language.toLowerCase()] = { text: t.text, author: quote.author };
+    }
 
-    const es = await this.quotesService.translate(original.text, 'ES');
-
-    return {
-      original: {
-        text: original.text,
-        author: original.author,
-      },
-      pt: {
-        text: pt,
-        author: original.author,
-      },
-      es: {
-        text: es,
-        author: original.author,
-      },
-    };
+    return response;
   }
 }
