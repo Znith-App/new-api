@@ -21,6 +21,13 @@ enum NoteSize {
   LARGE
 }
 
+enum Status {
+  PENDING
+  COMPLETED
+  CANCELLED
+  OUTDATED
+}
+
 model User {
   id             Int         @id @default(autoincrement())
   name           String
@@ -37,6 +44,7 @@ model User {
   isPsychologist Boolean     @default(false)
   twoFactors     TwoFactor[]
   notes   Note[]
+  goals   Goal[]
 }
 
 model TwoFactor {
@@ -88,4 +96,17 @@ model Note {
   deletedAt DateTime?
   color     Color?   @relation(fields: [colorid], references: [id])
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Goal {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  title       String
+  description String?
+  dueDate     DateTime?
+  status      Status   @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
