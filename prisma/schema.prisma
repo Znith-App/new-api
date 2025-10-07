@@ -7,6 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Mood {
+  VERY_SAD
+  SAD
+  NEUTRAL
+  HAPPY
+  VERY_HAPPY
+}
+
+enum NoteSize {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
 model User {
   id             Int         @id @default(autoincrement())
   name           String
@@ -22,6 +36,7 @@ model User {
   is2FAEnabled   Boolean     @default(false)
   isPsychologist Boolean     @default(false)
   twoFactors     TwoFactor[]
+  notes   Note[]
 }
 
 model TwoFactor {
@@ -43,12 +58,34 @@ model DailyQuote {
   translations DailyQuoteTranslation[] @relation("QuoteTranslations")
 }
 
+model Color {
+  id        Int      @id @default(autoincrement())
+  name      String
+  hexCode   String   @unique
+  createdAt DateTime @default(now())
+  notes     Note[]
+}
+
 model DailyQuoteTranslation {
   id        Int        @id @default(autoincrement())
   quoteId   Int
   language  String
   text      String
   createdAt DateTime   @default(now())
-
   quote     DailyQuote @relation("QuoteTranslations", fields: [quoteId], references: [id], onDelete: Cascade)
+}
+
+model Note {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  mood      Mood
+  size      NoteSize     
+  title     String
+  content   String
+  colorid   Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  color     Color?   @relation(fields: [colorid], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -9,10 +9,12 @@ import { QuotesService } from './modules/quotes/quotes.service';
 import { QuotesController } from './modules/quotes/quotes.controller';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuthGuard } from './common/guards/auth.guard';
+import { NotesService } from './modules/notes/notes.service';
+import { NotesController } from './modules/notes/notes.controller';
 
 @Module({
   imports: [PrismaModule, AuthModule, UsersModule, ScheduleModule.forRoot()],
-  controllers: [AppController, QuotesController],
+  controllers: [AppController, QuotesController, NotesController],
   providers: [
     AppService, 
     MailService, 
@@ -20,7 +22,8 @@ import { AuthGuard } from './common/guards/auth.guard';
     {
       provide: 'APP_GUARD',
       useClass: AuthGuard,
-    }
+    },
+    NotesService
   ],
 })
 export class AppModule {}
