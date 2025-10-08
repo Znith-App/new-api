@@ -14,7 +14,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
-  ) { }
+  ) {}
 
   async register(dto: RegisterDto) {
     const existingUser = await this.prisma.user.findUnique({
@@ -28,7 +28,7 @@ export class AuthService {
       data: { ...dto, password: hashedPassword },
     });
 
-    const token = this.signToken(user.id, user.email);
+    const token = this.signToken(user);
     return { token, user };
   }
 
@@ -57,7 +57,7 @@ export class AuthService {
       return { need2fa: true, tempToken: twoFactor.id.toString() };
     }
 
-    const token = this.signToken(user.id, user.email);
+    const token = this.signToken(user);
     return { token, user };
   }
 
@@ -65,8 +65,16 @@ export class AuthService {
     return Array.from({ length }, () => Math.floor(Math.random() * 10)).join('');
   }
 
-  private signToken(userId: number, email: string): string {
-    return this.jwtService.sign({ sub: userId, email });
+  private signToken(user: any): string {
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      isPremium: user.isPremium,
+      isPsychologist: user.isPsychologist,
+    };
+
+    return this.jwtService.sign(payload);
   }
 
   async verifyTwoFactor(dto: Verify2FADto) {
@@ -87,7 +95,7 @@ export class AuthService {
       data: { used: true },
     });
 
-    const token = this.signToken(twoFactor.user.id, twoFactor.user.email);
+    const token = this.signToken(twoFactor.user);
     return { token, user: twoFactor.user };
   }
 }

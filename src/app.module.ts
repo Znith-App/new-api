@@ -13,10 +13,12 @@ import { NotesService } from './modules/notes/notes.service';
 import { NotesController } from './modules/notes/notes.controller';
 import { GoalsService } from './modules/goals/goals.service';
 import { GoalsController } from './modules/goals/goals.controller';
+import { ColorsController } from './modules/colors/colors.controller';
+import { ColorsService } from './modules/colors/colors.service';
 
 @Module({
   imports: [PrismaModule, AuthModule, UsersModule, ScheduleModule.forRoot()],
-  controllers: [AppController, QuotesController, NotesController, GoalsController],
+  controllers: [AppController, QuotesController, NotesController, GoalsController, ColorsController],
   providers: [
     AppService, 
     MailService, 
@@ -26,7 +28,8 @@ import { GoalsController } from './modules/goals/goals.controller';
       useClass: AuthGuard,
     },
     NotesService,
-    GoalsService
+    GoalsService,
+    ColorsService
   ],
 })
 export class AppModule {}
