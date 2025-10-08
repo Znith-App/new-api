@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum Mood {
@@ -45,6 +46,7 @@ model User {
   twoFactors     TwoFactor[]
   notes   Note[]
   goals   Goal[]
+  weeklyReports  WeeklyReport[]
 }
 
 model TwoFactor {
@@ -109,4 +111,23 @@ model Goal {
   updatedAt   DateTime @updatedAt
   deletedAt   DateTime?
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WeeklyReport {
+  id               Int       @id @default(autoincrement())
+  userId           Int
+  startDate        DateTime
+  endDate          DateTime
+  averageMood      Mood?
+  moodDistribution Json
+  notesCount       Int       @default(0)
+  completedGoals   Int       @default(0)
+  pendingGoals     Int       @default(0)
+  moodTrend        Int?      // -1, 0, 1
+  mostActiveHour   Int?
+  daysActive       Int       @default(0)
+  alert            Boolean   @default(false)
+  therapistNotes   String?
+  createdAt        DateTime  @default(now())
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
