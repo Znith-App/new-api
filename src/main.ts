@@ -7,8 +7,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('API Users')
-    .setDescription('API para gerenciamento de usuários com JWT, soft delete e bcrypt')
+    .setTitle('Zenith API')
+    .setDescription('API do Zenith.')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

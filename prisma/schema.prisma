@@ -47,6 +47,7 @@ model User {
   notes   Note[]
   goals   Goal[]
   weeklyReports  WeeklyReport[]
+  monthtly MonthlyReport[]
 }
 
 model TwoFactor {
@@ -130,4 +131,27 @@ model WeeklyReport {
   therapistNotes   String?
   createdAt        DateTime  @default(now())
   user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MonthlyReport {
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  month        DateTime
+  averageMood  Mood
+  moodDistribution Json
+  moodVolatility Float
+  bestWeek     DateTime?
+  worstWeek    DateTime?
+  totalNotes   Int
+  activeDays   Int
+  mostActiveHour Int?
+  completedGoals Int
+  pendingGoals Int
+  successRate  Float
+  progressComparedToLastMonth Json?
+  alert        Boolean
+  recommendation String?
+  createdAt    DateTime @default(now())
+
+  user         User @relation(fields: [userId], references: [id])
 }

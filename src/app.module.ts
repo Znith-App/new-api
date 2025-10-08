@@ -17,10 +17,12 @@ import { ColorsController } from './modules/colors/colors.controller';
 import { ColorsService } from './modules/colors/colors.service';
 import { WeeklyReportService } from './modules/weekly-report/weekly-report.service';
 import { WeeklyReportController } from './modules/weekly-report/weekly-report.controller';
+import { MonthlyReportService } from './modules/monthly-report/monthly-report.service';
+import { MonthlyReportController } from './modules/monthly-report/monthly-report.controller';
 
 @Module({
   imports: [PrismaModule, AuthModule, UsersModule, ScheduleModule.forRoot()],
-  controllers: [AppController, QuotesController, NotesController, GoalsController, ColorsController, WeeklyReportController],
+  controllers: [AppController, QuotesController, NotesController, GoalsController, ColorsController, WeeklyReportController, MonthlyReportController],
   providers: [
     AppService, 
     MailService, 
@@ -32,7 +34,8 @@ import { WeeklyReportController } from './modules/weekly-report/weekly-report.co
     NotesService,
     GoalsService,
     ColorsService,
-    WeeklyReportService
+    WeeklyReportService,
+    MonthlyReportService
   ],
 })
 export class AppModule {}
