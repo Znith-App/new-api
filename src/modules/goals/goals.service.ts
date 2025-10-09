@@ -1,14 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { StreakService } from '../streak/streak.service';
 import { CreateGoalDto } from './dto/create-goal.dto';
 import { UpdateGoalDto } from './dto/update-goal.dto';
 
 @Injectable()
 export class GoalsService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly streakService: StreakService,
+    ) { }
 
     async create(userId: number, dto: CreateGoalDto) {
-        return this.prisma.goal.create({
+        
+        const NewGoal = this.prisma.goal.create({
             data: {
                 userId,
                 title: dto.title,
@@ -17,6 +22,10 @@ export class GoalsService {
                 status: dto.status ?? 'PENDING',
             },
         });
+
+        await this.streakService.updateStreak(userId);
+
+        return NewGoal;
     }
 
     async findAllByUser(userId: number) {

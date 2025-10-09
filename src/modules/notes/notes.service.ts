@@ -1,12 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { StreakService } from '../streak/streak.service';
 import { Prisma, Mood, NoteSize } from '@prisma/client';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import sanitizeHtml from 'sanitize-html';
 
 @Injectable()
 export class NotesService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly streakService: StreakService,
+    ) { }
 
     async createEmpty(userId: number) {
         const total = await this.prisma.note.count({
@@ -22,6 +26,8 @@ export class NotesService {
                 size: NoteSize.MEDIUM,
             },
         });
+
+        await this.streakService.updateStreak(userId);
 
         return newNote;
     }

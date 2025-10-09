@@ -19,10 +19,12 @@ import { WeeklyReportService } from './modules/weekly-report/weekly-report.servi
 import { WeeklyReportController } from './modules/weekly-report/weekly-report.controller';
 import { MonthlyReportService } from './modules/monthly-report/monthly-report.service';
 import { MonthlyReportController } from './modules/monthly-report/monthly-report.controller';
+import { StreakController } from './modules/streak/streak.controller';
+import { StreakService } from './modules/streak/streak.service';
 
 @Module({
   imports: [PrismaModule, AuthModule, UsersModule, ScheduleModule.forRoot()],
-  controllers: [AppController, QuotesController, NotesController, GoalsController, ColorsController, WeeklyReportController, MonthlyReportController],
+  controllers: [AppController, QuotesController, NotesController, GoalsController, ColorsController, WeeklyReportController, MonthlyReportController, StreakController],
   providers: [
     AppService, 
     MailService, 
@@ -35,7 +37,8 @@ import { MonthlyReportController } from './modules/monthly-report/monthly-report
     GoalsService,
     ColorsService,
     WeeklyReportService,
-    MonthlyReportService
+    MonthlyReportService,
+    StreakService
   ],
 })
 export class AppModule {}

@@ -48,6 +48,7 @@ model User {
   goals   Goal[]
   weeklyReports  WeeklyReport[]
   monthtly MonthlyReport[]
+  streak Streak?
 }
 
 model TwoFactor {
@@ -154,4 +155,16 @@ model MonthlyReport {
   createdAt    DateTime @default(now())
 
   user         User @relation(fields: [userId], references: [id])
+}
+
+model Streak {
+  id Int @id @default(autoincrement())
+  userId Int @unique
+  currentStreak Int @default(0)
+  longestStreak Int @default(0)
+  lastActive DateTime?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  DeletedAt DateTime?
 }
