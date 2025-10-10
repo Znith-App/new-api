@@ -171,40 +171,41 @@ model Streak {
 }
 
 model Psychotherapy {
-  id               Int              @id @default(autoincrement())
+  id               Int               @id @default(autoincrement())
   userId           Int
   psychologistId   Int
-  dayOfWeek        String?          
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  dayOfWeek        String?           
+  time             String?           
+  sessionDuration  Int?              
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
   deletedAt        DateTime?
 
-  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  psychologist     User             @relation("PsychologistSessions", fields: [psychologistId], references: [id], onDelete: Cascade)
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  psychologist     User              @relation("PsychologistSessions", fields: [psychologistId], references: [id], onDelete: Cascade)
 
-  therapySessions  TherapySession[] 
+  therapySessions  TherapySession[]  
 }
 
 model TherapySession {
-  id               Int              @id @default(autoincrement())
+  id               Int               @id @default(autoincrement())
   psychotherapyId  Int
-  sessionDate      DateTime
-  sessionDuration  Int
-  attended         Boolean          @default(false)
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  sessionDate      DateTime          
+  attended         Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
   deletedAt        DateTime?
 
-  psychotherapy    Psychotherapy    @relation(fields: [psychotherapyId], references: [id], onDelete: Cascade)
-  sessionNote      SessionNote?     
+  psychotherapy    Psychotherapy     @relation(fields: [psychotherapyId], references: [id], onDelete: Cascade)
+  sessionNote      SessionNote?
 }
 
 model SessionNote {
-  id               Int              @id @default(autoincrement())
-  therapySessionId Int?             @unique
+  id               Int               @id @default(autoincrement())
+  therapySessionId Int?              @unique
   noteText         String
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
-  therapySession   TherapySession?  @relation(fields: [therapySessionId], references: [id])
+  therapySession   TherapySession?   @relation(fields: [therapySessionId], references: [id])
 }
