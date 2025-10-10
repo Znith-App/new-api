@@ -21,10 +21,16 @@ import { MonthlyReportService } from './modules/monthly-report/monthly-report.se
 import { MonthlyReportController } from './modules/monthly-report/monthly-report.controller';
 import { StreakController } from './modules/streak/streak.controller';
 import { StreakService } from './modules/streak/streak.service';
+import { PsychotherapyController } from './modules/psychotherapy/psychotherapy.controller';
+import { PsychotherapyService } from './modules/psychotherapy/psychotherapy.service';
+import { TherapySessionService } from './modules/therapy-session/therapy-session.service';
+import { TherapySessionController } from './modules/therapy-session/therapy-session.controller';
+import { SessionNoteService } from './modules/session-note/session-note.service';
+import { SessionNoteController } from './modules/session-note/session-note.controller';
 
 @Module({
   imports: [PrismaModule, AuthModule, UsersModule, ScheduleModule.forRoot()],
-  controllers: [AppController, QuotesController, NotesController, GoalsController, ColorsController, WeeklyReportController, MonthlyReportController, StreakController],
+  controllers: [AppController, QuotesController, NotesController, GoalsController, ColorsController, WeeklyReportController, MonthlyReportController, StreakController, PsychotherapyController, TherapySessionController, SessionNoteController],
   providers: [
     AppService, 
     MailService, 
@@ -38,7 +44,10 @@ import { StreakService } from './modules/streak/streak.service';
     ColorsService,
     WeeklyReportService,
     MonthlyReportService,
-    StreakService
+    StreakService,
+    PsychotherapyService,
+    TherapySessionService,
+    SessionNoteService
   ],
 })
 export class AppModule {}
