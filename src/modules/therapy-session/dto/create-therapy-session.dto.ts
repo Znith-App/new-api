@@ -7,9 +7,6 @@ export class CreateTherapySessionDto {
   @IsDateString()
   sessionDate: string;
 
-  @IsInt()
-  sessionDuration: number;
-
   @IsBoolean()
   @IsOptional()
   attended?: boolean;

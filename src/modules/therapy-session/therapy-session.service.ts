@@ -1,11 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTherapySessionDto } from './dto/create-therapy-session.dto';
 import { UpdateTherapySessionDto } from './dto/update-therapy-session.dto';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { addDays, setHours, setMinutes, setSeconds } from 'date-fns';
 
 @Injectable()
 export class TherapySessionService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(TherapySessionService.name);
+
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(createDto: CreateTherapySessionDto) {
     return this.prisma.therapySession.create({
@@ -54,5 +58,48 @@ export class TherapySessionService {
       where: { id },
       data: { deletedAt: new Date() },
     });
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async scheduleWeeklySessions() {
+    const nextWeekDay = addDays(new Date(), 7);
+    const dayOfWeek = nextWeekDay.toLocaleDateString('en-US', { weekday: 'long' });
+
+    this.logger.log(`🔁 Criando sessões automáticas para ${dayOfWeek} (daqui a 7 dias)...`);
+
+    const therapies = await this.prisma.psychotherapy.findMany({
+      where: {
+        deletedAt: null,
+        dayOfWeek,
+      },
+    });
+
+    if (!therapies.length) {
+      this.logger.log(`Nenhuma psicoterapia marcada para ${dayOfWeek}.`);
+      return;
+    }
+
+    for (const therapy of therapies) {
+      const [hours, minutes] = (therapy.time ?? '09:00').split(':').map(Number);
+
+      // A sessão será no mesmo dia da semana, mas daqui a 7 dias
+      const sessionDate = setHours(setMinutes(setSeconds(nextWeekDay, 0), minutes), hours);
+
+      const existing = await this.prisma.therapySession.findFirst({
+        where: { psychotherapyId: therapy.id, sessionDate },
+      });
+
+      if (!existing) {
+        await this.prisma.therapySession.create({
+          data: {
+            psychotherapyId: therapy.id,
+            sessionDate,
+          },
+        });
+        this.logger.log(`✅ Sessão criada automaticamente para ${therapy.dayOfWeek} (#${therapy.id}) em ${sessionDate}`);
+      }
+    }
+
+    this.logger.log(`🎯 Sessões de ${dayOfWeek} (daqui a 7 dias) criadas com sucesso.`);
   }
 }
