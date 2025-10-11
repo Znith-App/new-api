@@ -72,4 +72,56 @@ export class PsychotherapyService {
             data: { deletedAt: new Date() },
         });
     }
+
+    async getCalendarByPsychologist(
+        psychologistId: number,
+        month: number,
+        year: number,
+    ) {
+        const startDate = new Date(year, month - 1, 1);
+        const endDate = new Date(year, month, 0, 23, 59, 59);
+
+        const sessions = await this.prisma.therapySession.findMany({
+            where: {
+                psychotherapy: {
+                    psychologistId,
+                },
+                sessionDate: {
+                    gte: startDate,
+                    lte: endDate,
+                },
+            },
+            include: {
+                psychotherapy: {
+                    include: {
+                        user: {
+                            select: { id: true, name: true },
+                        },
+                    },
+                },
+            },
+            orderBy: {
+                sessionDate: 'asc',
+            },
+        });
+
+        const calendar = sessions.reduce((acc, session) => {
+            const dateKey = session.sessionDate.toISOString().split('T')[0];
+            if (!acc[dateKey]) acc[dateKey] = [];
+            acc[dateKey].push({
+                id: session.id,
+                user: session.psychotherapy.user,
+                time: session.sessionDate.toISOString().split('T')[1].slice(0, 5),
+                attended: session.attended,
+            });
+            return acc;
+        }, {} as Record<string, any[]>);
+
+        return {
+            month,
+            year,
+            totalDays: new Date(year, month, 0).getDate(),
+            sessionsByDay: calendar,
+        };
+    }
 }

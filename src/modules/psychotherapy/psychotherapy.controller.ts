@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PsychotherapyService } from './psychotherapy.service';
 import { CreatePsychotherapyDto } from './dto/create-psychotherapy.dto';
@@ -7,7 +7,7 @@ import { UpdatePsychotherapyDto } from './dto/update-psychotherapy.dto';
 @ApiTags('Psychotherapy')
 @Controller('psychotherapy')
 export class PsychotherapyController {
-  constructor(private readonly psychotherapyService: PsychotherapyService) {}
+  constructor(private readonly psychotherapyService: PsychotherapyService) { }
 
   @Post()
   @ApiOperation({ summary: 'Create a new psychotherapy relation between a patient and a psychologist' })
@@ -46,5 +46,18 @@ export class PsychotherapyController {
   @ApiOperation({ summary: 'Soft delete a psychotherapy relation by ID' })
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.psychotherapyService.remove(id);
+  }
+
+  @Get('calendar/:psychologistId')
+  async getCalendar(
+    @Param('psychologistId') psychologistId: string,
+    @Query('month') month: string,
+    @Query('year') year: string,
+  ) {
+    return this.psychotherapyService.getCalendarByPsychologist(
+      Number(psychologistId),
+      Number(month),
+      Number(year),
+    );
   }
 }
