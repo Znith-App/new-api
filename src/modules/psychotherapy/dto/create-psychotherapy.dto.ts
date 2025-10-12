@@ -12,12 +12,12 @@ export class CreatePsychotherapyDto {
   @IsIn(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], {
     message: 'dayOfWeek must be a valid day name',
   })
-  dayOfWeek?: string;
+  dayOfWeek: string;
 
   @IsOptional()
   @IsString()
   @IsNotEmpty({ message: 'time must not be empty if provided' })
-  time?: string; 
+  time: string; 
 
   @IsOptional()
   @IsInt({ message: 'sessionDuration must be an integer (minutes)' })

@@ -82,7 +82,6 @@ export class TherapySessionService {
     for (const therapy of therapies) {
       const [hours, minutes] = (therapy.time ?? '09:00').split(':').map(Number);
 
-      // A sessão será no mesmo dia da semana, mas daqui a 7 dias
       const sessionDate = setHours(setMinutes(setSeconds(nextWeekDay, 0), minutes), hours);
 
       const existing = await this.prisma.therapySession.findFirst({

@@ -2,13 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePsychotherapyDto } from './dto/create-psychotherapy.dto';
 import { UpdatePsychotherapyDto } from './dto/update-psychotherapy.dto';
+import { addDays, setHours, setMinutes, setSeconds } from 'date-fns';
 
 @Injectable()
 export class PsychotherapyService {
     constructor(private readonly prisma: PrismaService) { }
 
     async create(createDto: CreatePsychotherapyDto) {
-        return this.prisma.psychotherapy.create({
+        const psychotherapy = await this.prisma.psychotherapy.create({
             data: createDto,
             include: {
                 user: true,
@@ -16,6 +17,39 @@ export class PsychotherapyService {
                 therapySessions: true,
             },
         });
+
+        const today = new Date();
+        const targetDay = this.getDayNumber(createDto.dayOfWeek);
+        const currentDay = today.getDay(); 
+        let daysUntilNext = (targetDay - currentDay + 7) % 7;
+        if (daysUntilNext === 0) daysUntilNext = 7; 
+
+        const nextSessionDate = addDays(today, daysUntilNext);
+
+        const [hours, minutes] = (createDto.time ?? '09:00').split(':').map(Number);
+        const sessionDate = setHours(setMinutes(setSeconds(nextSessionDate, 0), minutes), hours);
+
+        await this.prisma.therapySession.create({
+            data: {
+                psychotherapyId: psychotherapy.id,
+                sessionDate,
+            },
+        });
+
+        return psychotherapy;
+    }
+
+    private getDayNumber(dayOfWeek: string): number {
+        const map: Record<string, number> = {
+            Sunday: 0,
+            Monday: 1,
+            Tuesday: 2,
+            Wednesday: 3,
+            Thursday: 4,
+            Friday: 5,
+            Saturday: 6,
+        };
+        return map[dayOfWeek];
     }
 
     async findAllByPsychologist(psychologistId: number) {
@@ -81,38 +115,87 @@ export class PsychotherapyService {
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0, 23, 59, 59);
 
-        const sessions = await this.prisma.therapySession.findMany({
+        const psychotherapies = await this.prisma.psychotherapy.findMany({
             where: {
-                psychotherapy: {
-                    psychologistId,
-                },
-                sessionDate: {
-                    gte: startDate,
-                    lte: endDate,
-                },
+                psychologistId,
+                deletedAt: null,
             },
             include: {
-                psychotherapy: {
-                    include: {
-                        user: {
-                            select: { id: true, name: true },
-                        },
-                    },
-                },
-            },
-            orderBy: {
-                sessionDate: 'asc',
+                user: { select: { id: true, name: true } },
+                therapySessions: true,
             },
         });
 
-        const calendar = sessions.reduce((acc, session) => {
-            const dateKey = session.sessionDate.toISOString().split('T')[0];
-            if (!acc[dateKey]) acc[dateKey] = [];
-            acc[dateKey].push({
-                id: session.id,
-                user: session.psychotherapy.user,
-                time: session.sessionDate.toISOString().split('T')[1].slice(0, 5),
-                attended: session.attended,
+        const weekDaysMap: Record<string, number> = {
+            Sunday: 0,
+            Monday: 1,
+            Tuesday: 2,
+            Wednesday: 3,
+            Thursday: 4,
+            Friday: 5,
+            Saturday: 6,
+        };
+
+        const getDatesForWeekday = (weekday: number) => {
+            const days: Date[] = [];
+            const d = new Date(year, month - 1, 1);
+
+            while (d.getMonth() === month - 1) {
+                if (d.getDay() === weekday) days.push(new Date(d));
+                d.setDate(d.getDate() + 1);
+            }
+            return days;
+        };
+
+        const allSessions: {
+            psychotherapyId: number;
+            user: { id: number; name: string };
+            time: string;
+            attended?: boolean;
+            date: string;
+            simulated: boolean;
+        }[] = [];
+
+        for (const psychotherapy of psychotherapies) {
+            const { id: psychotherapyId, user, dayOfWeek, time, therapySessions } = psychotherapy;
+
+            if (!dayOfWeek || !time) continue;
+
+            const weekdayNumber = weekDaysMap[dayOfWeek];
+            if (weekdayNumber === undefined) continue;
+
+            const matchingDates = getDatesForWeekday(weekdayNumber);
+
+            const realSessionsMap = new Map(
+                therapySessions.map((s) => [
+                    s.sessionDate.toISOString().split('T')[0],
+                    s,
+                ]),
+            );
+
+            for (const date of matchingDates) {
+                const dateKey = date.toISOString().split('T')[0];
+                const realSession = realSessionsMap.get(dateKey);
+
+                allSessions.push({
+                    psychotherapyId,
+                    user,
+                    time,
+                    attended: realSession ? realSession.attended : false,
+                    date: dateKey,
+                    simulated: !realSession,
+                });
+            }
+        }
+
+        const sessionsByDay = allSessions.reduce((acc, s) => {
+            if (!acc[s.date]) acc[s.date] = [];
+            acc[s.date].push({
+                psychotherapyId: s.psychotherapyId,
+                user: s.user,
+                time: s.time,
+                attended: s.attended,
+                simulated: s.simulated,
             });
             return acc;
         }, {} as Record<string, any[]>);
@@ -121,7 +204,8 @@ export class PsychotherapyService {
             month,
             year,
             totalDays: new Date(year, month, 0).getDate(),
-            sessionsByDay: calendar,
+            sessionsByDay,
         };
     }
+
 }
