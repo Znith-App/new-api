@@ -7,7 +7,8 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 export class QuotesService {
   private readonly logger = new Logger(QuotesService.name);
   private readonly zenQuotesUrl = 'https://zenquotes.io/api/random';
-  private readonly libreTranslateUrl = 'http://localhost:5000';
+  private readonly libreTranslateUrl =
+    process.env.LIBRE_TRANSLATE_URL || 'http://localhost:5000';
 
   constructor(private readonly prisma: PrismaService) { }
 
