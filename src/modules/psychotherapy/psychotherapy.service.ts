@@ -3,10 +3,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePsychotherapyDto } from './dto/create-psychotherapy.dto';
 import { UpdatePsychotherapyDto } from './dto/update-psychotherapy.dto';
 import { addDays, setHours, setMinutes, setSeconds } from 'date-fns';
+import { TherapySessionService } from '../therapy-session/therapy-session.service';
 
 @Injectable()
 export class PsychotherapyService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly therapySessionService: TherapySessionService,
+    ) { }
 
     async create(createDto: CreatePsychotherapyDto) {
         const psychotherapy = await this.prisma.psychotherapy.create({
@@ -20,20 +24,18 @@ export class PsychotherapyService {
 
         const today = new Date();
         const targetDay = this.getDayNumber(createDto.dayOfWeek);
-        const currentDay = today.getDay(); 
+        const currentDay = today.getDay();
         let daysUntilNext = (targetDay - currentDay + 7) % 7;
-        if (daysUntilNext === 0) daysUntilNext = 7; 
+        if (daysUntilNext === 0) daysUntilNext = 7;
 
         const nextSessionDate = addDays(today, daysUntilNext);
 
         const [hours, minutes] = (createDto.time ?? '09:00').split(':').map(Number);
         const sessionDate = setHours(setMinutes(setSeconds(nextSessionDate, 0), minutes), hours);
 
-        await this.prisma.therapySession.create({
-            data: {
-                psychotherapyId: psychotherapy.id,
-                sessionDate,
-            },
+        await this.therapySessionService.create({
+            psychotherapyId: psychotherapy.id,
+            sessionDate: sessionDate.toISOString(),
         });
 
         return psychotherapy;
