@@ -108,4 +108,11 @@ export class UsersService {
       data: { is2FAEnabled: false },
     });
   }
+
+  async setIsRoleSetAsTrue(id: number) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { isRoleSet: true },
+    });
+  }
 }

@@ -98,4 +98,10 @@ export class UsersController {
   disable2FA(@Param('id') id: string) {
     return this.usersService.disable2FA(Number(id));
   }
+
+  @Patch(':id/set-role-set-true')
+  @ApiOperation({ summary: 'Set isRoleSet to true for user' })
+  setIsRoleSetAsTrue(@Param('id') id: string) {
+    return this.usersService.setIsRoleSetAsTrue(Number(id));
+  }
 }

@@ -42,6 +42,7 @@ model User {
   isPremium      Boolean     @default(false)
   is2FAEnabled   Boolean     @default(false)
   isPsychologist Boolean     @default(false)
+  isRoleSet      Boolean     @default(false)
   twoFactors     TwoFactor[]
   notes   Note[]
   goals   Goal[]
