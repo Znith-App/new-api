@@ -49,7 +49,7 @@ export class AuthService {
       });
 
       await this.mailService.sendMail(
-        user.email,
+        'projetozenithh@gmail.com', //user.email (temporario para testes)
         'Your 2FA Code',  
         `Your verification code is: ${code}`,
       );
