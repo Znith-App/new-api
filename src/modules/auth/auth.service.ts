@@ -14,7 +14,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
-  ) {}
+  ) { }
 
   async register(dto: RegisterDto) {
     const existingUser = await this.prisma.user.findUnique({
@@ -35,7 +35,7 @@ export class AuthService {
   async login(dto: LoginDto): Promise<LoginResponseDto> {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
 
-    if (!user || !(await bcrypt.compare(dto.password, user.password))) {
+    if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -55,6 +55,10 @@ export class AuthService {
       );
 
       return { need2fa: true, tempToken: twoFactor.id.toString() };
+    }
+
+    if (!(await bcrypt.compare(dto.password, user.password))) {
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const token = this.signToken(user);
