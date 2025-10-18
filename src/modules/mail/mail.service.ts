@@ -18,11 +18,16 @@ export class MailService {
   }
 
   async sendMail(to: string, subject: string, text: string) {
-    await this.transporter.sendMail({
-      from: `"Zenith" <${process.env.MAIL_USER}>`,
-      to,
-      subject,
-      text,
-    });
+    try {
+      await this.transporter.sendMail({
+        from: `"Zenith" <${process.env.MAIL_USER}>`,
+        to,
+        subject,
+        text,
+      });
+    } catch (error) {
+      console.error('Erro ao enviar e-mail:', error);
+      throw new Error('Falha ao enviar e-mail');
+    }
   }
 }
