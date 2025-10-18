@@ -11,7 +11,7 @@ export class MailService {
 
   async sendMail(to: string, subject: string, text: string) {
     try {
-      const fromEmail = process.env.MAIL_FROM || 'no-reply@zenith.com';
+      const fromEmail = process.env.MAIL_FROM || 'onboarding@resend.dev';
 
       const response = await this.resend.emails.send({
         from: fromEmail,
