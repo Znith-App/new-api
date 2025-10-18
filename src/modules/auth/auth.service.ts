@@ -50,7 +50,7 @@ export class AuthService {
 
       await this.mailService.sendMail(
         user.email,
-        'Your 2FA Code',
+        'Your 2FA Code',  
         `Your verification code is: ${code}`,
       );
 

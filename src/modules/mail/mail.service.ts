@@ -13,19 +13,14 @@ export class MailService {
     try {
       const fromEmail = process.env.MAIL_FROM || 'no-reply@zenith.com';
 
-      const { data, error } = await this.resend.emails.send({
-        from: `Zenith <${fromEmail}>`,
+      const response = await this.resend.emails.send({
+        from: fromEmail,
         to,
         subject,
-        text,
+        html: `<p>${text}</p>`,
       });
 
-      if (error) {
-        console.error('Erro ao enviar e-mail:', error);
-        throw new Error('Falha ao enviar e-mail');
-      }
-
-      console.log('E-mail enviado com sucesso. ID:', data?.id);
+      console.log('E-mail enviado com sucesso!', response);
     } catch (error) {
       console.error('Erro ao enviar e-mail:', error);
       throw new Error('Falha ao enviar e-mail');
