@@ -39,6 +39,11 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
     if (user.is2FAEnabled) {
       const code = this.generateCode(6);
       const codeHash = await bcrypt.hash(code, 10);
@@ -49,16 +54,12 @@ export class AuthService {
       });
 
       await this.mailService.sendMail(
-        'projetozenithh@gmail.com', //user.email (temporario para testes)
-        'Your 2FA Code',  
+        'projetozenithh@gmail.com', // user.email
+        'Your 2FA Code',
         `Your verification code is: ${code}`,
       );
 
       return { need2fa: true, tempToken: twoFactor.id.toString() };
-    }
-
-    if (!(await bcrypt.compare(dto.password, user.password))) {
-      throw new UnauthorizedException('Invalid credentials');
     }
 
     const token = this.signToken(user);
