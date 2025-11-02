@@ -15,10 +15,16 @@ export class NotesController {
         return this.notesService.createEmpty(Number(userId));
     }
 
-    @Get(':userId')
+    @Get('user/:userId')
     @ApiOperation({ summary: 'Finds all notes for a specific user.' })
     findAll(@Param('userId') userId: string) {
         return this.notesService.findAllByUser(Number(userId));
+    }
+
+    @Get(':id')
+    @ApiOperation({ summary:'Get a specific note by Id' })
+    findOne(@Param('id') id: string) {
+        return this.notesService.findOne(Number(id));
     }
 
     @Patch(':id')
